@@ -9,5 +9,12 @@ public (CC0) build - no satellite imagery, no third-party photos.
 
 Live: https://fabbbrrr.github.io/lakeside_pub/
 
+## Downloads
+
+Ready-to-install releases for Assetto Corsa live in [`releases/`](releases/) —
+the **track** and the **rental kart**, with full install instructions in
+[`releases/README.md`](releases/README.md). Just download the two `.acz` files
+and drop them in.
+
 Map data (c) OpenStreetMap contributors (ODbL). Textures from Poly Haven (CC0).
 kn5 exporter by Thomas Hagnhofer & Paul Greveson (GPL-3.0).
