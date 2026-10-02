@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Mans Lakeside — a real kart circuit, rebuilt for Assetto Corsa</title>
+<meta name="description" content="581 m of Dandenong South kart circuit, measured off georeferenced imagery and rebuilt for Assetto Corsa. 13 named corners, day and night renders, and an honest look at how it was made.">
+<meta name="theme-color" content="#0a0c0f">
+<meta property="og:title" content="Le Mans Lakeside — Assetto Corsa">
+<meta property="og:description" content="A hand-built recreation of a real kart circuit. 581 m, 13 named corners, day and night. Free, not for sale.">
+<meta property="og:image" content="media/lap/90-aerial.jpg">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --asphalt:#0a0c0f; --deck:#0f1318; --panel:#141a21; --panel2:#1a212a;
+  --line:#242c37; --line2:#333e4c;
+  --ink:#f3f6f9; --mute:#8e9dad; --mute2:#66748a;
+  --kerb:#df2b22; --kerb-dark:#a81c15; --chalk:#f6f8fb;
+  --teal:#12b8a6; --amber:#ffc93c; --green:#4ed37a;
+  --display:'Anton',Impact,'Haettenschweiler','Arial Narrow Bold',sans-serif;
+  --cond:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --gut:clamp(18px,4vw,44px);
+  --maxw:1280px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--asphalt);color:var(--ink);
+  font-family:var(--cond);font-size:clamp(16px,1.05vw + 13px,20px);line-height:1.6;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:var(--amber);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3,h4{font-family:var(--display);font-weight:400;letter-spacing:.01em;margin:0;line-height:.95;text-transform:uppercase}
+p{margin:0 0 1em}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gut)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- stripes & flags ---------- */
+.kerb{height:12px;background:repeating-linear-gradient(115deg,var(--kerb) 0 20px,var(--chalk) 20px 40px);}
+.kerb.thin{height:7px}
+.chequer{height:26px;background:repeating-conic-gradient(var(--chalk) 0 25%,#0a0c0f 0 50%) 0 0/26px 26px;}
+
+/* ---------- nav ---------- */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(10,12,15,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.topbar .row{display:flex;align-items:center;gap:clamp(10px,2vw,28px);max-width:var(--maxw);margin:0 auto;padding:10px var(--gut)}
+.brand{font-family:var(--display);font-size:20px;letter-spacing:.06em;white-space:nowrap}
+.brand em{font-style:normal;color:var(--kerb)}
+.navlinks{display:flex;gap:clamp(8px,1.6vw,22px);margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-family:var(--cond);font-weight:600;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);text-decoration:none}
+.navlinks a:hover{color:var(--ink)}
+.tagv{font-family:var(--mono);font-size:12px;padding:3px 8px;border:1px solid var(--line2);border-radius:2px;color:var(--amber)}
+.lapbar{height:3px;background:linear-gradient(90deg,var(--kerb),var(--amber));width:0%}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:clamp(560px,88svh,900px);display:flex;align-items:flex-end;isolation:isolate;overflow:hidden}
+.hero .bg{position:absolute;inset:0;z-index:-2}
+.hero .bg img{width:100%;height:100%;object-fit:cover;object-position:52% 48%;filter:saturate(1.05) contrast(1.05)}
+.hero .scrim{position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(180deg,rgba(10,12,15,.86) 0%,rgba(10,12,15,.25) 34%,rgba(10,12,15,.72) 74%,var(--asphalt) 100%),
+  radial-gradient(120% 90% at 10% 100%,rgba(18,184,166,.16),transparent 60%)}
+.hero-inner{padding:0 var(--gut) clamp(26px,4vh,50px);max-width:var(--maxw);margin:0 auto;width:100%}
+.kicker{display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+.kicker::before{content:"";width:46px;height:2px;background:var(--kerb)}
+h1{font-size:clamp(46px,10.5vw,142px);line-height:.86;text-shadow:0 6px 40px rgba(0,0,0,.65)}
+h1 .x{display:block;color:transparent;-webkit-text-stroke:2px var(--chalk);text-stroke:2px var(--chalk)}
+.lede{max-width:60ch;font-size:clamp(17px,1.6vw,23px);color:#d6dee7;margin:18px 0 22px}
+.lede b{color:var(--chalk)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--cond);font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  font-size:15px;padding:14px 22px;min-height:48px;border:1px solid var(--line2);color:var(--ink);background:transparent;cursor:pointer;text-decoration:none;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+.btn:hover{text-decoration:none;border-color:var(--chalk)}
+.btn.primary{background:var(--kerb);border-color:var(--kerb);color:#fff}
+.btn.primary:hover{background:#f03a30}
+.btn.ghost{color:var(--mute)}
+.btn.ghost:hover{color:var(--ink)}
+.statboard{margin-top:clamp(22px,4vh,40px);display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));border:1px solid var(--line);background:rgba(15,19,24,.72)}
+.stat{padding:14px 16px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-family:var(--display);font-size:clamp(26px,3.4vw,40px);line-height:1}
+.stat span{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.stat i{font-style:normal;font-size:.5em;color:var(--mute);margin-left:3px}
+
+/* ---------- sections ---------- */
+section{position:relative}
+.band{padding:clamp(54px,8vh,104px) 0}
+.band.dark{background:var(--deck);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.sechead{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:clamp(20px,3vh,38px)}
+.sechead .num{font-family:var(--mono);font-size:13px;color:var(--kerb);letter-spacing:.2em}
+.sechead h2{font-size:clamp(32px,5.6vw,74px)}
+.sechead p{max-width:56ch;color:var(--mute);margin:0 0 6px}
+.rule{position:relative}
+.rule::after{content:"";display:block;margin-top:14px;height:2px;background:linear-gradient(90deg,var(--kerb),rgba(223,43,34,0));width:min(320px,40%)}
+
+/* ---------- manifesto ---------- */
+.two{display:grid;grid-template-columns:1.35fr .95fr;gap:clamp(22px,4vw,58px);align-items:start}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.manifesto{font-size:clamp(18px,1.55vw,24px);color:#dbe3ec;max-width:62ch}
+.manifesto strong{color:var(--chalk)}
+.panel{border:1px solid var(--line);background:var(--panel);padding:22px}
+.panel h3{font-size:22px;margin-bottom:10px;color:var(--amber)}
+.stamp{border:2px solid var(--kerb);color:var(--kerb);font-family:var(--display);letter-spacing:.14em;
+  font-size:clamp(20px,2.4vw,30px);text-align:center;padding:14px;transform:rotate(-3deg);text-transform:uppercase;margin-bottom:18px}
+.tick{list-style:none;margin:0;padding:0;font-family:var(--cond)}
+.tick li{position:relative;padding-left:26px;margin-bottom:9px;color:#cdd7e2}
+.tick li::before{content:"";position:absolute;left:0;top:.55em;width:13px;height:13px;
+  background:repeating-conic-gradient(var(--chalk) 0 25%,#0a0c0f 0 50%) 0 0/13px 13px;outline:1px solid var(--line2)}
+.tick li.no::before{background:var(--kerb)}
+
+/* ---------- lap scrubber ---------- */
+.scrub{border:1px solid var(--line);background:#0c1015}
+.stage{position:relative;aspect-ratio:16/9;overflow:hidden;background:#05070a}
+.stage img.frame{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .34s linear}
+.stage img.frame.on{opacity:1}
+.stage .plate{position:absolute;left:0;bottom:0;padding:14px 22px 14px 18px;background:linear-gradient(90deg,rgba(8,10,13,.92),rgba(8,10,13,.55) 70%,transparent);
+  display:flex;align-items:flex-end;gap:16px;max-width:100%}
+.stage .plate .n{font-family:var(--display);font-size:clamp(40px,7vw,86px);line-height:.8;color:var(--chalk);text-shadow:0 2px 18px #000}
+.stage .plate .n.ok{color:var(--amber)}
+.stage .plate .txt{padding-bottom:4px}
+.stage .plate .txt h3{font-size:clamp(19px,2.2vw,32px)}
+.stage .plate .txt span{font-family:var(--mono);font-size:12px;color:#b9c6d4;letter-spacing:.08em}
+.stage .badge{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;padding:5px 10px;background:rgba(8,10,13,.72);border:1px solid var(--line2);color:var(--mute)}
+.stage .badge.night{color:var(--amber);border-color:#5a4a18}
+.controls{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);flex-wrap:wrap}
+.ctl{font-family:var(--mono);font-size:13px;background:transparent;border:1px solid var(--line2);color:var(--ink);padding:9px 13px;min-height:44px;cursor:pointer}
+.ctl:hover{border-color:var(--chalk)}
+.ctl.play{background:var(--kerb);border-color:var(--kerb);color:#fff;font-weight:600;min-width:104px}
+.lapTrack{flex:1;min-width:160px;height:6px;background:var(--panel2);position:relative}
+.lapTrack i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,var(--kerb),var(--amber));width:0}
+.tower{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:4px;padding:12px 14px;border-top:1px solid var(--line);background:#0a0d11}
+.tower button{font-family:var(--mono);font-size:13px;padding:9px 4px;min-height:44px;background:var(--panel);border:1px solid var(--line);color:var(--mute);cursor:pointer}
+.tower button:hover{color:var(--ink);border-color:var(--line2)}
+.tower button[aria-current="true"]{background:var(--kerb);border-color:var(--kerb);color:#fff;font-weight:600}
+.tower button span{display:block;font-family:var(--cond);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+
+/* ---------- corner cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:clamp(12px,1.4vw,20px)}
+.card{position:relative;border:1px solid var(--line);background:var(--panel);cursor:pointer;padding:0;text-align:left;color:inherit;overflow:hidden;font:inherit;display:block}
+.card:hover{border-color:var(--line2)}
+.card .thumbwrap{display:block;position:relative;aspect-ratio:16/9;overflow:hidden}
+.card .thumbwrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease,opacity .4s}
+.card:hover .thumbwrap img{transform:scale(1.045)}
+.card .thumbwrap img.n{opacity:0}
+.card.show-night .thumbwrap img.n{opacity:1}
+.card .meta{display:flex;align-items:center;gap:12px;padding:11px 13px;border-top:1px solid var(--line)}
+.card .cn{font-family:var(--display);font-size:24px;line-height:1;color:var(--amber);min-width:30px}
+.card .meta b{font-family:var(--cond);font-weight:600;font-size:17px;letter-spacing:.04em;text-transform:uppercase;display:block;line-height:1.15}
+.card .meta span{font-family:var(--mono);font-size:11px;color:var(--mute)}
+.daynight{display:inline-flex;border:1px solid var(--line2);margin-bottom:20px}
+.daynight button{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;background:transparent;border:0;color:var(--mute);padding:10px 16px;min-height:44px;cursor:pointer}
+.daynight button[aria-pressed="true"]{background:var(--chalk);color:#0a0c0f;font-weight:600}
+
+/* ---------- wipe compare ---------- */
+.wipes{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:clamp(14px,2vw,24px)}
+.wipe{border:1px solid var(--line);background:var(--panel);margin:0}
+.wipe .shot{position:relative;aspect-ratio:16/9;overflow:hidden;touch-action:pan-y}
+.wipe .shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wipe .shot .topimg{clip-path:inset(0 calc(100% - var(--p,50%)) 0 0)}
+.wipe .handle{position:absolute;top:0;bottom:0;left:var(--p,50%);width:3px;background:var(--chalk);transform:translateX(-50%);pointer-events:none;
+  box-shadow:0 0 12px rgba(0,0,0,.8)}
+.wipe .handle::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border:2px solid var(--chalk);
+  background:repeating-linear-gradient(115deg,var(--kerb) 0 6px,var(--chalk) 6px 12px)}
+.wipe input[type=range]{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:ew-resize}
+.wipe .tag{position:absolute;top:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 8px;background:rgba(8,10,13,.74);border:1px solid var(--line2)}
+.wipe .tag.l{left:10px;color:var(--mute)}
+.wipe .tag.r{right:10px;color:var(--amber)}
+.wipe figcaption{padding:10px 13px;border-top:1px solid var(--line);font-family:var(--mono);font-size:12px;color:var(--mute)}
+.wipe figcaption b{color:var(--ink);font-family:var(--cond);font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ---------- lighting data ---------- */
+.datalist{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.datalist div{background:var(--panel);padding:14px 16px}
+.datalist b{display:block;font-family:var(--display);font-size:clamp(22px,2.6vw,32px)}
+.datalist span{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+
+/* ---------- process ---------- */
+.step{display:grid;grid-template-columns:96px 1.15fr .85fr;gap:clamp(16px,2.6vw,40px);align-items:start;
+  padding:clamp(22px,3.4vh,40px) 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0}
+.step .code{font-family:var(--mono);font-size:12px;color:var(--kerb);letter-spacing:.14em}
+.step .code b{display:block;font-family:var(--display);font-size:clamp(38px,5vw,60px);color:var(--chalk);line-height:.85}
+.step h3{font-size:clamp(22px,2.5vw,34px);margin-bottom:8px}
+.step p{color:#c2ccd8;margin-bottom:.6em}
+.step .fig{margin:0;border:1px solid var(--line);background:var(--panel)}
+.step .fig img{width:100%}
+.step .fig figcaption{padding:9px 12px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--mute)}
+@media(max-width:900px){.step{grid-template-columns:64px 1fr}.step .fig{grid-column:2}}
+
+/* ---------- iou chart ---------- */
+.chart{border:1px solid var(--line);background:#0c1015;padding:18px 18px 12px}
+.chart .bars{display:flex;align-items:flex-end;gap:3px;height:clamp(150px,26vh,240px)}
+.chart .bars div{flex:1;position:relative;background:var(--panel2);height:100%;display:flex;align-items:flex-end}
+.chart .bars i{display:block;width:100%;background:var(--kerb);transition:height .9s cubic-bezier(.22,.7,0,1)}
+.chart .axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--mute2);margin-top:8px}
+.chart .legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--mute);margin-top:6px}
+.chart .legend i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px}
+.hint{font-family:var(--mono);font-size:11.5px;color:var(--mute2);margin-top:8px}
+table.spec{width:100%;border-collapse:collapse;font-family:var(--cond);font-size:17px}
+table.spec th,table.spec td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+table.spec th{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:500}
+table.spec td.n{font-family:var(--mono);font-size:15px;color:var(--chalk)}
+table.spec tr:hover td{background:rgba(255,255,255,.02)}
+
+/* ---------- textures ---------- */
+.texgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.texgrid figure{margin:0;border:1px solid var(--line);background:var(--panel)}
+.texgrid img{aspect-ratio:1;object-fit:cover;width:100%}
+.texgrid figcaption{padding:8px 11px;font-family:var(--mono);font-size:11.5px;color:var(--mute);border-top:1px solid var(--line)}
+.texgrid figure.wide{grid-column:span 2}
+@media(max-width:640px){.texgrid figure.wide{grid-column:span 1}}
+
+/* ---------- lightbox ---------- */
+.lb{position:fixed;inset:0;z-index:200;background:rgba(5,7,10,.95);display:none;flex-direction:column}
+.lb.open{display:flex}
+.lb .bar{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.lb .bar b{font-family:var(--display);font-size:clamp(18px,2.4vw,28px);letter-spacing:.03em}
+.lb .bar span{font-family:var(--mono);font-size:12px;color:var(--mute)}
+.lb .bar .sp{margin-left:auto}
+.lb .body{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:12px}
+.lb .body img{max-width:100%;max-height:100%;object-fit:contain}
+.lb .ctl{background:var(--panel);border-color:var(--line2)}
+.lb .ctl[aria-pressed="true"]{background:var(--chalk);color:#0a0c0f}
+
+/* ---------- footer ---------- */
+footer{background:var(--deck);border-top:1px solid var(--line);padding:clamp(40px,6vh,70px) 0 30px}
+.credits{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px}
+.credits h4{font-size:19px;margin-bottom:8px;color:var(--chalk)}
+.credits p,.credits li{font-size:15.5px;color:var(--mute);line-height:1.55}
+.credits ul{padding-left:18px;margin:0}
+.fine{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--mute2);display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+
+/* ---------- motion ---------- */
+.reveal{opacity:0;transform:translateY(22px)}
+.reveal.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.22,.7,0,1)}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+  .stage img.frame{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="kerb"></div>
+<header class="topbar">
+  <div class="row">
+    <span class="brand">LAKESIDE<em>/</em>AC</span>
+    <nav class="navlinks">
+      <a href="#lap">The lap</a>
+      <a href="#corners">Corners</a>
+      <a href="#night">Night</a>
+      <a href="#process">How it's made</a>
+      <a href="#verified">Accuracy</a>
+      <a href="#box">Spec</a>
+    </nav>
+    <span class="tagv">v0.5.1</span>
+  </div>
+  <div class="lapbar" id="lapbar"></div>
+</header>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <div class="bg"><img src="media/lap/90-aerial.jpg" alt="Le Mans Lakeside kart circuit, rendered aerial view"></div>
+  <div class="scrim"></div>
+  <div class="hero-inner">
+    <div class="kicker">Dandenong South, Victoria &nbsp;·&nbsp; Assetto Corsa</div>
+    <h1>Le Mans<span class="x">Lakeside</span></h1>
+    <p class="lede">A <b>real kart circuit</b> — 581&nbsp;m, thirteen named corners, the kerbs, the anti-cut blocks, the floodlights — measured off georeferenced imagery and <b>rebuilt by hand</b> for Assetto Corsa. Not a guess. Not for sale.</p>
+    <div class="cta">
+      <a class="btn primary" href="#lap">Drive the lap <span class="mono">▶</span></a>
+      <a class="btn" href="https://fabbbrrr.github.io/lemans-gallery/">Full render gallery</a>
+      <a class="btn ghost" href="#process">How it was made</a>
+    </div>
+    <div class="statboard">
+      <div class="stat"><b>581<i>m</i></b><span>Centreline</span></div>
+      <div class="stat"><b>13</b><span>Named corners</span></div>
+      <div class="stat"><b>6.2<i>m</i></b><span>Track width</span></div>
+      <div class="stat"><b>12</b><span>Pit boxes</span></div>
+      <div class="stat"><b>27</b><span>Floodlights</span></div>
+      <div class="stat"><b>78.2<i>%</i></b><span>Overlay IoU</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BRIEF ============================ -->
+<section class="band" id="brief">
+  <div class="wrap two">
+    <div class="reveal">
+      <div class="sechead rule"><div><span class="num">01 / THE BRIEF</span><h2>Built by a&nbsp;karter, for&nbsp;karters</h2></div></div>
+      <p class="manifesto">I race here. I wanted <strong>this</strong> circuit in the sim — the real corner names, the real kerbs, the yellow anti-cut humps, the pit loop hairpin, the floodlit evening sessions. So instead of sketching something that felt about right, the model was made to <strong>sit on top of real imagery of the venue</strong> and nudged until the two lined up, corner by corner.</p>
+      <p class="manifesto">Every pixel that ships is either measured geometry, OpenStreetMap data, or a texture we made or downloaded under <strong>CC0</strong>. The satellite imagery was used only as a ruler; none of it is in the build. That is the whole reason this can be public.</p>
+    </div>
+    <div class="panel reveal">
+      <div class="stamp">Free · Not for sale</div>
+      <ul class="tick">
+        <li><b>No venue affiliation.</b> A fan project, made for the love of karting.</li>
+        <li><b>No satellite pixels shipped.</b> Measured facts only — the imagery stayed a measuring tool.</li>
+        <li><b>Every texture audited.</b> 130 textures, all CC0 or generated here; the build fails if one isn't.</li>
+        <li><b>Neutral art.</b> No real venue or sponsor logos in the public build.</li>
+        <li class="no"><b>Honest about the gaps.</b> Flat ground, 78% overlay fit, and the corners that still need work are listed below.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="kerb thin"></div>
+
+<!-- ============================ THE LAP ============================ -->
+<section class="band dark" id="lap">
+  <div class="wrap">
+    <div class="sechead rule">
+      <div><span class="num">02 / THE LAP</span><h2>Thirteen corners, 581&nbsp;metres</h2></div>
+      <p>Offline renders of the finished build, station by station around the lap — Bridge Bend to the Pit Loop. Press play and ride it, or jump straight to a corner.</p>
+    </div>
+    <div class="scrub reveal">
+      <div class="stage" id="stage">
+        <div class="plate">
+          <div class="n" id="stageN">01</div>
+          <div class="txt"><h3 id="stageName">—</h3><span id="stageDist">—</span></div>
+        </div>
+        <span class="badge" id="stageBadge">Day · Blender Cycles</span>
+      </div>
+      <div class="controls">
+        <button class="ctl play" id="btnPlay">▶ Play lap</button>
+        <button class="ctl" id="btnPrev" aria-label="Previous corner">◀ Prev</button>
+        <button class="ctl" id="btnNext" aria-label="Next corner">Next ▶</button>
+        <div class="lapTrack"><i id="lapFill"></i></div>
+        <button class="ctl" id="btnNight" aria-pressed="false">Night ☾</button>
+      </div>
+      <div class="tower" id="tower"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CORNERS ============================ -->
+<section class="band" id="corners">
+  <div class="wrap">
+    <div class="sechead rule">
+      <div><span class="num">03 / THE CORNERS</span><h2>Every named section</h2></div>
+      <p>Thirteen sections, taken from the venue's own corner map. Tap any card for the full frame — every corner is rendered twice, in daylight and under the floodlights.</p>
+    </div>
+    <div class="daynight" role="group" aria-label="Thumbnail set">
+      <button id="dnDay" aria-pressed="true">Day</button>
+      <button id="dnNight" aria-pressed="false">Night</button>
+    </div>
+    <div class="cards" id="cards"></div>
+  </div>
+</section>
+
+<div class="chequer"></div>
+
+<!-- ============================ NIGHT ============================ -->
+<section class="band dark" id="night">
+  <div class="wrap">
+    <div class="sechead rule">
+      <div><span class="num">04 / NIGHT</span><h2>Same track, different planet</h2></div>
+      <p>Drag the handle. These renders are a preview of the in-game CSP lighting, not an artistic mood — the same pole positions, the same cones, the same numbers that ship in the track's config.</p>
+    </div>
+    <div class="wipes" id="wipes"></div>
+
+    <div style="margin-top:clamp(24px,4vh,44px)">
+      <div class="sechead"><div><h3 style="font-size:clamp(20px,2.4vw,30px)">The floodlight rig</h3></div></div>
+      <div class="datalist">
+        <div><b>27</b><span>Poles around 581 m</span></div>
+        <div><b>15<i>m</i></b><span>Pole height</span></div>
+        <div><b>115<i>°</i></b><span>Cone angle</span></div>
+        <div><b>68<i>m</i></b><span>Lamp range</span></div>
+        <div><b>0.35</b><span>Per-pole intensity</span></div>
+        <div><b>1.15</b><span>LIT_MULT</span></div>
+      </div>
+      <p class="hint">Wide, long and soft on purpose: ~27 overlapping cones sum to an even wash instead of eight bright pools with dark gaps. Poles are placed by one helper function that both the geometry and the lighting config read, so they can never drift apart — and the build asserts every pole is clear of the racing surface, the run-off and the pit lane.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PROCESS ============================ -->
+<section class="band" id="process">
+  <div class="wrap">
+    <div class="sechead rule">
+      <div><span class="num">05 / HOW IT'S MADE</span><h2>Measured, not imagined</h2></div>
+      <p>Nine steps, no shortcuts: fetch the data, trace the asphalt, fit a centreline, build the mesh, texture it, package it, then verify everything twice and look at every render.</p>
+    </div>
+    <div id="steps"></div>
+  </div>
+</section>
+
+<div class="kerb thin"></div>
+
+<!-- ============================ ACCURACY ============================ -->
+<section class="band dark" id="verified">
+  <div class="wrap">
+    <div class="sechead rule">
+      <div><span class="num">06 / ACCURACY</span><h2>How close is it, really?</h2></div>
+      <p>The 3D model is dropped on top of real imagery of the venue and scored segment by segment. Here is the honest result, including the bits that are still wrong.</p>
+    </div>
+
+    <div class="two">
+      <div class="reveal">
+        <div class="chart">
+          <div class="bars" id="bars" aria-hidden="true"></div>
+          <div class="axis"><span>0 m</span><span>140 m</span><span>290 m</span><span>430 m</span><span>581 m</span></div>
+          <div class="legend">
+            <span><i style="background:var(--kerb)"></i>&lt; 0.70</span>
+            <span><i style="background:var(--amber)"></i>0.70 – 0.80</span>
+            <span><i style="background:var(--green)"></i>&gt; 0.80</span>
+            <span id="chartHint">Overlap (IoU) per 20 m of lap</span>
+          </div>
+        </div>
+        <p class="hint">Each bar is one 20-metre slice of the lap. IoU compares the model's track area with the real asphalt: 1.00 would be a perfect match. The tall run through the middle of the lap is where the layout is most confidently right; the dips near 380–500 m and the pit-loop end are the stretch still being iterated.</p>
+      </div>
+
+      <div class="reveal">
+        <table class="spec">
+          <tr><th>Measure</th><th>Value</th></tr>
+          <tr><td>Overlay overlap (IoU)</td><td class="n" id="vIou">—</td></tr>
+          <tr><td>Model-only area (model vs real)</td><td class="n" id="vModel">—</td></tr>
+          <tr><td>Imagery-only area (real vs model)</td><td class="n" id="vImag">—</td></tr>
+          <tr><td>Our centreline</td><td class="n" id="vLap">—</td></tr>
+          <tr><td>Venue's quoted lap</td><td class="n">650 m <small>(outside edge)</small></td></tr>
+          <tr><td>Length gap vs RaceFacer's 620 m</td><td class="n">6.3%</td></tr>
+          <tr><td>Track width (min / median / max)</td><td class="n">4.8 / 6.2 / 8.3 m</td></tr>
+        </table>
+        <p class="hint" style="margin-top:12px">The 650 m the venue quotes is the <b>outside edge</b> of the loop, and an outside edge is always longer than the centreline — 581 + 2·π·3.1 ≈ 600 m predicted, against the venue's 650 m (7.6% out). Most of the "missing" length is just which edge you measure along.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:clamp(26px,4vh,48px)">
+      <div class="sechead"><div><h3 style="font-size:clamp(20px,2.4vw,30px)">The build checks itself</h3></div>
+      <p>Every build runs an independent reader over the finished kn5 and refuses to pass if anything is off.</p></div>
+      <div class="datalist">
+        <div><b>130</b><span>Textures, all CC0 / procedural</span></div>
+        <div><b>110</b><span>Materials</span></div>
+        <div><b>2892</b><span>Mesh nodes, no NaN</span></div>
+        <div><b>6</b><span>Physics surfaces</span></div>
+        <div><b>781</b><span>AI line points</span></div>
+        <div><b>3</b><span>Timing gates</span></div>
+      </div>
+      <p class="hint">Spawn points, pit boxes, start line and timing gates are all asserted on the centreline with the right heading; road normals must point up; every physics mesh must map to a known surface key; and in the public build any texture that isn't CC0 or generated fails the audit. Latest run: <b>overall PASS</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FULL-WIDTH BANNER ============================ -->
+<section class="band" id="banner" style="padding:0">
+  <img src="media/process/08_full_render.jpg" alt="Le Mans Lakeside, full render" style="width:100%;height:auto" loading="lazy">
+</section>
+
+<!-- ============================ TEXTURES ============================ -->
+<section class="band" id="surfaces">
+  <div class="wrap">
+    <div class="sechead rule">
+      <div><span class="num">07 / SURFACES</span><h2>Nothing borrowed, nothing grey</h2></div>
+      <p>Asphalt is graded from CC0 photo scans; kerbs, barriers, tyres, boards, the bus and the water are generated in code. Same material set you see in every frame above.</p>
+    </div>
+    <div class="texgrid" id="texgrid"></div>
+  </div>
+</section>
+
+<!-- ============================ SPEC ============================ -->
+<section class="band dark" id="box">
+  <div class="wrap two">
+    <div class="reveal">
+      <div class="sechead rule"><div><span class="num">08 / SPEC</span><h2>In the box</h2></div></div>
+      <table class="spec">
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Track id</td><td class="n">lemans_lakeside</td></tr>
+        <tr><td>Direction</td><td class="n">Clockwise</td></tr>
+        <tr><td>Centreline / quoted</td><td class="n">581 m / 650 m</td></tr>
+        <tr><td>Width (min / median / max)</td><td class="n">4.8 / 6.2 / 8.3 m</td></tr>
+        <tr><td>Sections</td><td class="n">13 named</td></tr>
+        <tr><td>Pit boxes / grid slots</td><td class="n">12 / 12</td></tr>
+        <tr><td>Surfaces</td><td class="n">ROAD · KERB · GRASS · PIT · WALL · RUNOFF</td></tr>
+        <tr><td>Elevation</td><td class="n">Flat (not yet modelled)</td></tr>
+        <tr><td>Physics / model</td><td class="n">51.8 MB kn5, v5</td></tr>
+        <tr><td>Version</td><td class="n">0.5.1</td></tr>
+      </table>
+    </div>
+    <div class="reveal">
+      <div class="panel">
+        <h3>Before you ask</h3>
+        <p style="color:#c2ccd8">This build is made to be driven, not sold. It is free for personal use and it is not affiliated with the venue. The realistic gaps — flat ground, no elevation pass, an overlay fit that is 78% rather than 95%, and the handful of corners still being chased — are listed openly rather than hidden, because a sim track is judged on the lap, not the launch page.</p>
+        <h3 style="margin-top:18px">What's next</h3>
+        <ul class="tick">
+          <li>Elevation pass over the real ground shape</li>
+          <li>Tightening the 380–500 m stretch and the pit-loop end</li>
+          <li>More trackside detail from the venue's own reference frames</li>
+        </ul>
+        <div class="cta" style="margin-top:18px">
+          <a class="btn primary" href="https://fabbbrrr.github.io/lemans-gallery/">Render gallery</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="credits">
+      <div>
+        <h4>Le Mans Lakeside</h4>
+        <p>A hand-built recreation of the Lakeside kart circuit at LeMans Entertainment, Dandenong South VIC — made by a karter, in the open, with everything auditable.</p>
+        <p class="mono" style="font-size:12px;color:var(--mute2)">Renders: Blender / Cycles CPU, 16 samples, denoised, 1280×720. Camera stations taken from the track's own sections file.</p>
+      </div>
+      <div>
+        <h4>Data &amp; licences</h4>
+        <ul>
+          <li>Map data © OpenStreetMap contributors (ODbL 1.0)</li>
+          <li>Textures from Poly Haven (CC0 1.0)</li>
+          <li>kn5 exporter by Thomas Hagnhofer &amp; Paul Greveson (GPL-3.0)</li>
+          <li>Geometry, procedural textures and code: this project's own</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Not shipped, on purpose</h4>
+        <ul>
+          <li>No satellite or aerial imagery pixels</li>
+          <li>No third-party photographs</li>
+          <li>No venue or sponsor logos</li>
+          <li>Nothing sold, nothing licensed for resale</li>
+        </ul>
+      </div>
+    </div>
+    <div class="fine">
+      <span>Built in the open · engine-agnostic tooling · v0.5.1</span>
+      <span id="footRun">—</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================ LIGHTBOX ============================ -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Corner view">
+  <div class="bar">
+    <b id="lbName">—</b>
+    <span id="lbDist">—</span>
+    <span class="sp"></span>
+    <button class="ctl" id="lbDay" aria-pressed="true">Day</button>
+    <button class="ctl" id="lbNight" aria-pressed="false">Night</button>
+    <button class="ctl" id="lbPrev">◀</button>
+    <button class="ctl" id="lbNext">▶</button>
+    <button class="ctl" id="lbClose">Close ✕</button>
+  </div>
+  <div class="body"><img id="lbImg" alt=""></div>
+</div>
+
+<script src="site-data.js"></script>
+<script>
+(function(){
+"use strict";
+var D = window.LAKESIDE || {stations:[],textures:[],iou:{},lighting:{}};
+var S = D.stations || [];
+var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function pad(n){return (n<10?"0":"")+n;}
+function fmt(n,d){return Number(n).toFixed(d===undefined?1:d);}
+
+/* ---------- nav progress ---------- */
+var bar = document.getElementById("lapbar");
+function onScroll(){
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  bar.style.width = (h>0 ? (window.scrollY/h*100) : 0) + "%";
+}
+addEventListener("scroll", onScroll, {passive:true}); onScroll();
+
+/* ---------- reveals ---------- */
+var revealObs = new IntersectionObserver(function(es){
+  es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); revealObs.unobserve(e.target);} });
+},{rootMargin:"0px 0px -8% 0px"});
+function watchReveals(){
+  [].slice.call(document.querySelectorAll(".reveal:not(.in)")).forEach(function(el){ revealObs.observe(el); });
+}
+watchReveals();
+/* safety net: never leave content invisible if the observer misses (tall windows,
+   screenshot/headless passes, no-IO browsers) */
+setTimeout(function(){ [].slice.call(document.querySelectorAll(".reveal")).forEach(function(el){ el.classList.add("in"); }); }, 2600);
+
+/* ---------- lap scrubber ---------- */
+var stage = document.getElementById("stage");
+var elN = document.getElementById("stageN"), elName = document.getElementById("stageName"),
+    elDist = document.getElementById("stageDist"), elBadge = document.getElementById("stageBadge"),
+    tower = document.getElementById("tower"), fill = document.getElementById("lapFill"),
+    btnPlay = document.getElementById("btnPlay"), btnNight = document.getElementById("btnNight");
+var frames = [], idx = 0, night = false, timer = null;
+
+S.forEach(function(st){
+  var img = document.createElement("img");
+  img.className = "frame"; img.alt = st.name + " — Le Mans Lakeside";
+  img.decoding = "async"; img.src = srcFor(st, false);
+  stage.insertBefore(img, stage.firstChild);
+  frames.push(img);
+  var b = document.createElement("button");
+  b.innerHTML = pad(frames.length) + "<span>" + shortName(st.name) + "</span>";
+  b.setAttribute("aria-label", st.name);
+  b.addEventListener("click", function(){ stop(); show(frames.length-1); });
+  tower.appendChild(b);
+});
+function shortName(n){
+  var w = n.split(" ");
+  return (w[0] === "The" && w[1]) ? w[1] : w[0];
+}
+function srcFor(st, n){ return "media/lap/" + (n ? "night/" : "") + st.id + ".jpg"; }
+var nightPreloaded = false;
+function preloadNight(){
+  if(nightPreloaded) return; nightPreloaded = true;
+  S.forEach(function(st){ if(st.night){ var i = new Image(); i.src = srcFor(st, true); } });
+}
+function show(i){
+  idx = (i + S.length) % S.length;
+  frames.forEach(function(f,k){
+    var want = (k===idx);
+    if(want && f.getAttribute("src") !== srcFor(S[k], night)) f.src = srcFor(S[k], night);
+    f.classList.toggle("on", want);
+  });
+  var st = S[idx];
+  elN.textContent = S[idx].kind === "section" ? pad(idx+1) : "◦";
+  elN.className = "n" + (S[idx].kind === "section" ? "" : " ok");
+  elName.textContent = st.name;
+  elDist.textContent = st.kind === "section"
+      ? "s " + fmt(st.s,1) + " m  ·  section " + fmt(st.range[0],0) + "–" + fmt(st.range[1],0) + " m  ·  IoU " + fmt(segIou(st.s),2)
+      : "lap " + fmt(D.lap_m||581,0) + " m  ·  clockwise";
+  Array.prototype.forEach.call(tower.children, function(b,k){
+    b.setAttribute("aria-current", k===idx ? "true" : "false");
+  });
+  fill.style.width = ((idx+1)/S.length*100) + "%";
+  elBadge.textContent = (night ? "Night" : "Day") + " · Blender Cycles";
+  elBadge.className = "badge" + (night ? " night" : "");
+}
+function elf(){}
+function segIou(s){
+  var per = (D.iou && D.iou.per_20m) || [];
+  if(!per.length) return 0;
+  var best = per[0];
+  per.forEach(function(p){ if(Math.abs(p.s - s) < Math.abs(best.s - s)) best = p; });
+  return best.iou;
+}
+function play(){ if(timer) return; btnPlay.textContent = "❚❚ Pause";
+  timer = setInterval(function(){ show(idx+1); }, 1700); }
+function stop(){ if(timer){ clearInterval(timer); timer = null; } btnPlay.textContent = "▶ Play lap"; }
+btnPlay.addEventListener("click", function(){ timer ? stop() : play(); });
+document.getElementById("btnPrev").addEventListener("click", function(){ stop(); show(idx-1); });
+document.getElementById("btnNext").addEventListener("click", function(){ stop(); show(idx+1); });
+btnNight.addEventListener("click", function(){
+  night = !night; preloadNight();
+  btnNight.setAttribute("aria-pressed", night ? "true" : "false");
+  btnNight.textContent = night ? "Night ☾ (on)" : "Night ☾";
+  show(idx);
+});
+addEventListener("keydown", function(e){
+  if(document.getElementById("lb").classList.contains("open")) return;
+  if(e.key === "ArrowRight"){ stop(); show(idx+1); }
+  if(e.key === "ArrowLeft"){ stop(); show(idx-1); }
+});
+
+/* ---------- corner cards ---------- */
+var cards = document.getElementById("cards");
+S.forEach(function(st, k){
+  var b = document.createElement("button");
+  b.className = "card"; b.type = "button";
+  b.innerHTML =
+    '<span class="thumbwrap">' +
+      '<img src="media/lap/' + st.id + '-thumb.jpg" alt="' + st.name + ' — daylight render" loading="lazy">' +
+      (st.night ? '<img class="n" src="media/lap/night/' + st.id + '-thumb.jpg" alt="' + st.name + ' — night render" loading="lazy">' : '') +
+    '</span>' +
+    '<span class="meta"><span class="cn">' + (st.kind === "section" ? pad(k+1) : "◦") + '</span>' +
+      '<span><b>' + st.name + '</b><span>' + (st.kind === "section" ? "s " + fmt(st.s,0) + " m · IoU " + fmt(segIou(st.s),2) : "lap overview") + '</span></span></span>';
+  b.addEventListener("click", function(){ openLb(k); });
+  cards.appendChild(b);
+});
+var dnDay = document.getElementById("dnDay"), dnNight = document.getElementById("dnNight");
+function setThumbs(n){
+  document.querySelectorAll(".card").forEach(function(c){ c.classList.toggle("show-night", n); });
+  dnNight.setAttribute("aria-pressed", n ? "true" : "false");
+  dnDay.setAttribute("aria-pressed", n ? "false" : "true");
+}
+dnDay.addEventListener("click", function(){ setThumbs(false); });
+dnNight.addEventListener("click", function(){ setThumbs(true); });
+
+/* ---------- day / night wipes ---------- */
+var wipes = document.getElementById("wipes");
+var WIPE_PICKS = ["90-aerial", "91-start-finish", "08-wombat", "13-pit-loop"];
+var WIPE_CAP = {
+  "90-aerial":["The whole circuit", "Twelve hours apart, same geometry — only the light changes."],
+  "91-start-finish":["Start / finish", "The gantry, the grid boxes, the kerbs."],
+  "08-wombat":["Wombat", "Mid-lap; the tyre wall reads clearly under the poles."],
+  "13-pit-loop":["Pit loop", "The tightest part of the lap, floodlit from both sides."]
+};
+WIPE_PICKS.forEach(function(id){
+  var st = S.filter(function(x){ return x.id === id; })[0];
+  if(!st || !st.night) return;
+  var cap = WIPE_CAP[id] || [st.name, ""];
+  var fig = document.createElement("figure");
+  fig.className = "wipe";
+  fig.innerHTML =
+    '<div class="shot" style="--p:50%">' +
+      '<img src="media/lap/night/' + st.id + '.jpg" alt="' + st.name + ' at night">' +
+      '<img class="topimg" src="media/lap/' + st.id + '.jpg" alt="' + st.name + ' in daylight">' +
+      '<span class="tag l">Day</span><span class="tag r">Night</span>' +
+      '<span class="handle"></span>' +
+      '<input type="range" min="0" max="100" value="50" aria-label="Reveal ' + st.name + ' night render">' +
+    '</div>' +
+    '<figcaption><b>' + cap[0] + '</b> — ' + cap[1] + '</figcaption>';
+  var shot = fig.querySelector(".shot"), input = fig.querySelector("input");
+  function apply(){ shot.style.setProperty("--p", input.value + "%"); }
+  input.addEventListener("input", apply); apply();
+  wipes.appendChild(fig);
+});
+
+/* ---------- IoU chart ---------- */
+var bars = document.getElementById("bars");
+var per = (D.iou && D.iou.per_20m) || [];
+per.forEach(function(p){
+  var d = document.createElement("div");
+  var col = p.iou < 0.70 ? "var(--kerb)" : (p.iou < 0.80 ? "var(--amber)" : "var(--green)");
+  d.title = "s " + p.s + "–" + (p.s+20) + " m · IoU " + fmt(p.iou,3);
+  d.innerHTML = '<i style="height:0;background:' + col + '"></i>';
+  bars.appendChild(d);
+});
+var chartIO = new IntersectionObserver(function(es){
+  es.forEach(function(e){
+    if(!e.isIntersecting) return;
+    chartIO.unobserve(e.target);
+    Array.prototype.forEach.call(bars.children, function(d, k){
+      var v = per[k] ? per[k].iou : 0;
+      setTimeout(function(){ d.firstChild.style.height = Math.max(6, v*100) + "%"; }, reduce ? 0 : k*26);
+    });
+  });
+},{rootMargin:"0px 0px -12% 0px"});
+if(bars.children.length) chartIO.observe(bars);
+if(D.iou){
+  document.getElementById("vIou").textContent = fmt(D.iou.iou*100,1) + "%  (raw mask " + fmt(D.iou.iou_raw_mask*100,1) + "%)";
+  document.getElementById("vModel").textContent = fmt(D.iou.model_only_m2,1) + " m²";
+  document.getElementById("vImag").textContent = fmt(D.iou.imagery_only_m2,1) + " m²";
+}
+document.getElementById("vLap").textContent = fmt(D.lap_m||581,1) + " m";
+document.getElementById("footRun").textContent = "render run " + (D.run||"") + " · " + (D.renderer||"") + " · " + (D.samples||16) + " samples";
+
+/* ---------- process steps ---------- */
+var STEPS = [
+  {code:"00", img:"media/process/01_preview.jpg", cap:"Track model, previewed in Blender", t:"Define the job with evidence, not vibes",
+   b:["Before a single line is drawn, the decisions get written down with where each one came from: the direction (clockwise, west across the line), the start/finish line (the gantry, from the venue's own corner map), the thirteen corner names (from the venue's map and onboard video), and the ground mode — <b>open</b>, the CC0 one that can actually be published."]},
+  {code:"01", img:"media/process/02_ortho_model.jpg", cap:"Orthographic plan of the finished model", t:"Trace the asphalt, then fit a centreline",
+   b:["The racing surface is picked out of georeferenced imagery by a colour rule, then a centreline is fitted to it with eight passes of normal-scanning: scan across the track, take the middle of the asphalt run, median-filter, clip, smooth, repeat until the correction drops under 0.1 m.","A second pass reads the real width off the ground — out to the first white line, kerb, paint, grass or tyre — so the model carries the circuit's actual 4.8–8.3 m width rather than a guess."]},
+  {code:"02", img:"media/process/03_render_overview.jpg", cap:"Finished build, aerial render", t:"Build the mesh and write the kn5",
+   b:["Headless Blender builds the whole scene: driving surface, aprons, teal and concrete run-off, the striped kerbs and the yellow anti-cut humps, white edge lines and red bands, alternating red/white plastic barriers, the pit lane, and the venue itself — gantry, floodlight poles, marshal hut, pit shelters and the double-decker bus that gives the Bus Stop its name.","From that come the spawn points, pit boxes and three timing gates."]},
+  {code:"03", img:"media/process/04_render_kerbs.jpg", cap:"Kerbs, barriers and run-off in the renderer", t:"Light it, and light it evenly",
+   b:["Twenty-seven poles ring the lap, half of them measured from the shadows they cast in the imagery and the rest generated by one function that walks the lap, alternates sides, jitters so it doesn't read as a grid, and skips anything too close to an existing pole.","Every pole is asserted clear of the racing surface, the run-off and the pit lane — a config edit that would drop a post on the racing line fails the build."]},
+  {code:"04", img:"media/process/05_render_grid.jpg", cap:"Start / finish, from the grid", t:"Package it for Assetto Corsa",
+   b:["The package writes the kn5, the six physics surfaces, the map, the thirteen section names, the UI data and the CSP extension — one night spot per pole aimed at the nearest point on the centreline, plus material adjustments so the lamp heads and boards glow after dark."]},
+  {code:"05", img:"media/process/06_sections_full.jpg", cap:"One chase-cam frame every 48 m, whole lap", t:"Verify it twice, then look at every frame",
+   b:["An independent reader opens the finished kn5 and checks it from scratch: textures, NaN, up-normals on the driving surfaces, every physics mesh against the surface keys, spawn and pit and gate positions and headings — and a <b>licence audit</b> that fails the build if a single texture isn't CC0 or generated here.","Then the track is rendered every 48 m around the whole lap and every frame is actually looked at. That loop is what caught the grass that overreached into the chicane, the wrong-year asphalt albedo and the fence that ran across the pit lane."]},
+  {code:"06", img:"media/process/07_sections_wide.jpg", cap:"Wide chase-cam pass", t:"Score the fit against the real thing",
+   b:["The model is georeferenced against real imagery and scored segment by segment: 78.2% area overlap across the lap, with per-corner numbers so the weak spots are named rather than averaged away."]},
+  {code:"07", img:"media/process/09_framed_render.jpg", cap:"The finished circuit", t:"Publish only what can be published",
+   b:["The public build carries measured geometry, OSM data and CC0 textures. The satellite imagery that everything was measured against — and every photograph used as reference — stays on the workbench, because none of it can be redistributed. That is why the numbers are published instead of the pixels."]}
+];
+var stepsEl = document.getElementById("steps");
+STEPS.forEach(function(s){
+  var el = document.createElement("article");
+  el.className = "step reveal";
+  el.innerHTML =
+    '<div class="code"><b>' + s.code + '</b>STEP</div>' +
+    '<div><h3>' + s.t + '</h3>' + s.b.map(function(p){ return '<p>' + p + '</p>'; }).join("") + '</div>' +
+    '<figure class="fig"><img src="' + s.img + '" alt="' + s.cap + '" loading="lazy"><figcaption>' + s.cap + '</figcaption></figure>';
+  stepsEl.appendChild(el);
+});
+
+/* before / after art pass */
+(function(){
+  var el = document.createElement("div");
+  el.className = "wipe reveal";
+  el.style.maxWidth = "760px";
+  el.innerHTML =
+    '<div class="shot" style="--p:50%">' +
+      '<img src="media/process/11_art_after.jpg" alt="After a materials and lighting pass">' +
+      '<img class="topimg" src="media/process/10_art_before.jpg" alt="Before a materials and lighting pass">' +
+      '<span class="tag l">Before</span><span class="tag r">After</span><span class="handle"></span>' +
+      '<input type="range" min="0" max="100" value="50" aria-label="Before and after a materials pass">' +
+    '</div>' +
+    '<figcaption><b>Same corner, same build — one materials pass later</b> — the review loop in one picture: render, look, fix, re-render.</figcaption>';
+  var shot = el.querySelector(".shot"), input = el.querySelector("input");
+  function apply(){ shot.style.setProperty("--p", input.value + "%"); }
+  input.addEventListener("input", apply); apply();
+  stepsEl.appendChild(el);
+})();
+
+/* ---------- textures ---------- */
+var texgrid = document.getElementById("texgrid");
+(D.textures||[]).forEach(function(t, i){
+  var f = document.createElement("figure");
+  if(i === 0) f.className = "wide";
+  f.innerHTML = '<img src="media/' + t.src + '" alt="' + t.caption.replace(/<[^>]+>/g,"") + '" loading="lazy"><figcaption>' + t.caption + '</figcaption>';
+  texgrid.appendChild(f);
+});
+/* the sections above are built after the first observer pass - pick them up now */
+watchReveals();
+
+/* ---------- lightbox ---------- */
+var lb = document.getElementById("lb"), lbImg = document.getElementById("lbImg"),
+    lbName = document.getElementById("lbName"), lbDist = document.getElementById("lbDist"),
+    lbDay = document.getElementById("lbDay"), lbNight = document.getElementById("lbNight");
+var li = 0, ln = false, lastFocus = null;
+function openLb(k){
+  lastFocus = document.activeElement; li = k; ln = false;
+  lb.classList.add("open"); document.body.style.overflow = "hidden"; paintLb();
+  document.getElementById("lbClose").focus();
+}
+function paintLb(){
+  var st = S[li];
+  lbImg.src = "media/lap/" + (ln ? "night/" : "") + st.id + ".jpg";
+  lbImg.alt = st.name + (ln ? " at night" : " in daylight");
+  lbName.textContent = st.name;
+  lbDist.textContent = st.kind === "section"
+    ? "s " + fmt(st.s,0) + " m · section " + fmt(st.range[0],0) + "–" + fmt(st.range[1],0) + " m · IoU " + fmt(segIou(st.s),2)
+    : "lap overview · " + fmt(D.lap_m||581,0) + " m";
+  lbDay.setAttribute("aria-pressed", ln ? "false" : "true");
+  lbNight.setAttribute("aria-pressed", ln ? "true" : "false");
+}
+function closeLb(){ lb.classList.remove("open"); document.body.style.overflow = ""; if(lastFocus) lastFocus.focus(); }
+document.getElementById("lbClose").addEventListener("click", closeLb);
+lbDay.addEventListener("click", function(){ ln = false; paintLb(); });
+lbNight.addEventListener("click", function(){ ln = true; paintLb(); });
+document.getElementById("lbPrev").addEventListener("click", function(){ li = (li-1+S.length)%S.length; paintLb(); });
+document.getElementById("lbNext").addEventListener("click", function(){ li = (li+1)%S.length; paintLb(); });
+lb.addEventListener("click", function(e){ if(e.target === lb) closeLb(); });
+addEventListener("keydown", function(e){
+  if(!lb.classList.contains("open")) return;
+  if(e.key === "Escape") closeLb();
+  if(e.key === "ArrowRight"){ li = (li+1)%S.length; paintLb(); }
+  if(e.key === "ArrowLeft"){ li = (li-1+S.length)%S.length; paintLb(); }
+  if(e.key === "n" || e.key === "N"){ ln = !ln; paintLb(); }
+});
+
+/* ---------- boot ---------- */
+show(0);
+})();
+</script>
+</body>
+</html>
